@@ -283,4 +283,3 @@ void screendump(const char *filename, short width, short height)
 
     delete[] pixels;
 }
-
