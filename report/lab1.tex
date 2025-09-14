@@ -1,0 +1,161 @@
+\documentclass[14pt, final]{extarticle}
+\usepackage[utf8]{inputenc}
+\usepackage[russianb]{babel}
+\usepackage{vmargin}
+\usepackage{graphicx}
+\setpapersize{A4}
+\setmarginsrb{3cm}{1cm}{2cm}{2cm}{0pt}{0mm}{0pt}{13mm}
+\usepackage{indentfirst}
+\usepackage{listings}
+\usepackage{xcolor}
+\definecolor{bluekeywords}{rgb}{0,0,1}
+\definecolor{greencomments}{rgb}{0,0.5,0}
+\definecolor{redstrings}{rgb}{0.64,0.08,0.08}
+\lstset{
+    language=C++,
+    columns=fullflexible,
+    frame=single,
+    breaklines=true,
+    numbers=left,
+    showstringspaces=false,
+    postbreak=\mbox{\textcolor{red}{$\hookrightarrow$}\space},
+    commentstyle=\color{greencomments},
+    breakatwhitespace=true,
+    keywordstyle=\color{bluekeywords},
+    stringstyle=\color{redstrings},
+}
+\sloppy
+\title{Лабораторная работа 1. Вариант 1}
+\author{Калабин Павел Павлович 5130904/20103}
+\date{\today}
+\begin{document}
+\maketitle
+\section{Постановка задачи}
+
+Целью работы является ознакомление с основами векторной графики и получение 
+навыков работы с базовыми функциями графического API и трехмерными графическими примитивами.
+Требуется при помощи стандартных функций бибилиотеки (OpenGL/Vulkan или DirectX) изобразить 
+указанные объекты и произвести необходимые преобразования.
+
+\begin{enumerate}
+    \item Изобразить каркасный конус и каркасную сферу, расположенные на некотором расстоянии друг от друга.
+    \item Совместить центр основания конуса и центр сферы.
+    \item Изобразить тор и цилиндр. Размеры и местоположение примитивов задать самостоятельно.
+    \item Выполнить последовательно сначала поворот цилиндра вокруг оси Х, а затем растяжение тора в 2 раза.
+\end{enumerate}
+
+\section {Ход работы}
+
+В качестве среды выполнения работы была выбрана библиотека OpenGL.
+Для выполнения работы были использованы примитивы из библиотеки OpenGL
+Utility (GLU) и OpenGL Utility Toolkit (GLUT).
+
+\subsection{Настройка OpenGL}
+
+Для корректной работы и отрисовки примитивов необходимо настроить OpenGL.
+Для этого при помощи стека матриц были созданы 
+\textit{матрица проекции (projection matrix)} и \textit{видовая матрица (view matrix)}.
+Кратко работу со стеком матриц можно описать следующим образом: 
+
+\begin{enumerate}
+    \item Загружается матрица, с которой предполагается производить операции,
+    \item При помощи функций библиотеки эта матрица умножается справа на изменяющую матрицу,
+    \item На стеке остаётся преобразованная матрица с необходимыми нам характеристиками. 
+\end{enumerate}
+
+Подробнее работа со стеком матриц будет рассмотрена на примере построения сцены.
+
+\textit{Матрица проекции} отвечает за проекцию трёхмерного пространства на двумерное
+пространство экрана и за отсечение тех объектов, которые не находятся в поле зрения.
+
+Существует несколько видов матриц проекции, например \textit{ортографическая проекция},
+такая проекция переносит объекты <<как есть>> без учета перспективы.
+Второй вид проекции это \textit{проекция с перспективой}, она позволяет отобразить
+объекты с учетом их положения в пространстве так, как они бы выглядели при
+взгляде на них с позиции камер.
+
+В работе была использована матрица проекции с перспективой из библиотеки GLU,
+которая имеет дополнительный параметр угла обзора (FOV).
+
+\textit{Видовая матрица} отвечает за преобразование мировых координат в пространство
+координат камеры, эта матрица как бы перемещает точку наблюдения в центр
+камеры.
+
+В качестве такой матрицы была использована матрица LookAt, которую
+предоставляет функция \texttt{gluLookAt}.
+
+\subsection{Сцены}
+
+Была составлена сцена из синей сферы и фиолетового конуса (см. рис.\,\ref{scene11_figure}),
+для этого использованы функции \texttt{glutWireCone} и \texttt{glutWireSphere}.
+Эти функции используют внутреннюю реализацию из библиотеки GLU, в частности
+реализация конуса представляет собой вызов функции отрисовки циллиндра с
+нулевым параметром радиуса верхней части, так что верхний радиус циллиндра
+вырождается в точку.
+
+Для создания сцены необходимо использовать стек матриц, для представления
+каждого примитива в виде набора вершин и манипуляции этими объектами.
+При создании сцены на стек матриц заносится матрица, отвечающая за
+трансформации сцены в целом (например, вращение целой сцены). Далее по
+очередно заносятся матрицы, отвечающие за трансформации над объектами и
+описываются соотвествующие им примитивы.
+
+\subsection{Анимации}
+
+Для анимирования сцен введены параметры, например смещение
+сферы на некоторую позицию. Параметры сцен изменяются с течением времени 
+в функциях \texttt{animateX}, которые определяют анимации для соответсвующей сцены.
+
+\subsection{Демонстрация работы программы}
+
+Далее на рисунках с \,\ref{scene11_figure} по \,\ref{scene14_figure} показана работа
+программы и вид сцены №1.
+На рисунках с \,\ref{scene21_figure} по \,\ref{scene24_figure} демонстрируется сцена №2.
+
+\begin{figure}[h]
+    \includegraphics[width=0.9\textwidth]{images/scene1_1}
+    \caption{Сцена 1. Начальное состояние}
+    \label{scene11_figure}
+\end{figure}
+\begin{figure}[h!]
+    \includegraphics[width=0.9\textwidth]{images/scene1_2}
+    \caption{Сцена 1. Перенос сферы}
+    \label{scene12_figure}
+\end{figure}
+\begin{figure}[h!]
+    \includegraphics[width=0.9\textwidth]{images/scene1_3}
+    \caption{Сцена 1. Перенос сферы}
+    \label{scene13_figure}
+\end{figure}
+\begin{figure}[h!]
+    \includegraphics[width=0.9\textwidth]{images/scene1_4}
+    \caption{Сцена 1. Перенос сферы}
+    \label{scene14_figure}
+\end{figure}
+
+\begin{figure}[h!]
+    \includegraphics[width=0.9\textwidth]{images/scene2_1}
+    \caption{Сцена 2. Начальное состояние}
+    \label{scene21_figure}
+\end{figure}
+\begin{figure}[h!]
+    \includegraphics[width=0.9\textwidth]{images/scene2_2}
+    \caption{Сцена 2. Вращение циллиндра}
+    \label{scene22_figure}
+\end{figure}
+\begin{figure}[h!]
+    \includegraphics[width=0.9\textwidth]{images/scene2_3}
+    \caption{Сцена 2. Начало увеличения тора в 2 раза}
+    \label{scene23_figure}
+\end{figure}
+\begin{figure}[h!]
+    \includegraphics[width=0.9\textwidth]{images/scene2_4}
+    \caption{Сцена 2. Тор увеличен в 2 раза}
+    \label{scene24_figure}
+\end{figure}
+
+\newpage
+\section*{Приложение}
+
+\lstinputlisting[caption=Исходный текст программы, label=lst:main]{main.cc}
+\end{document}
